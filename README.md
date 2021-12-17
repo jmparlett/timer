@@ -1,5 +1,5 @@
 # Timer
-Simple timer written go
+Simple timer written in go
 
 ![pic](timer.png)
 
