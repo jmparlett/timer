@@ -4,7 +4,7 @@ Simple timer written in go
 ![pic](timer.png)
 
 ## Usage
-```bash
+```
 timer <time in seconds>
 ```
 - `-u` Count up or down, defaults to down from given time
