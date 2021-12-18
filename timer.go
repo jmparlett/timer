@@ -30,41 +30,49 @@ func printGoodbye() {
 	fmt.Printf("\n\tTimer Complete!\n\n")
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Printf("Error: expected time argument\n")
-		return
+func permuteArgs(args []string) {
+	//rearrange the args array so that named arguments come first, this allows us to use positionals and named args
+	args = args[1:] //remember changing the slice changes the underlying array
+	optind := 0
+	for i := range args {
+		if args[i][0] == '-' {
+			tmp := args[i]
+			args[i] = args[optind]
+			args[optind] = tmp
+			optind++
+		}
 	}
+}
+
+func main() {
+
+	//param vars
+	var timeToCount float64
 	var direction bool
+	var stopwatch bool
 	var help bool
-	var timeToCount float64 = 0.0
 	var hours int
 	var minutes int
 	var seconds int
 
-	//by default we'll take whatever was the first position arg to be our time in seconds
-	timeToCount, _ = strconv.ParseFloat(os.Args[1], 32)
-	if timeToCount != 0 { //we had a positional so lets permute args so we can still use the flags lib
-		args := os.Args[1:] //remember changing the slice changes the underlying array
-		optind := 0
-		for i := range args {
-			if args[i][0] == '-' {
-				tmp := args[i]
-				args[i] = args[optind]
-				args[optind] = tmp
-				optind++
-			}
-		}
-	}
-
 	flag.BoolVar(&direction, "u", false, "count up or down, default is down")
+	flag.BoolVar(&stopwatch, "S", false, "stopwatch mode, count up until quit is given")
 	flag.BoolVar(&help, "h", false, "display usage")
 	flag.IntVar(&seconds, "s", 0, "time in seconds")
 	flag.IntVar(&minutes, "m", 0, "time in minutes")
 	flag.IntVar(&hours, "hr", 0, "time in hours")
 
-	//check our args
-	flag.Parse()
+	if len(os.Args) > 1 { //if we have args lets parse them for positional
+		//by default we'll take whatever was the first position arg to be our time in seconds
+		timeToCount, _ = strconv.ParseFloat(os.Args[1], 32)
+		if timeToCount != 0 { //we had a positional so lets permute args so we can still use the flags lib
+			permuteArgs(os.Args)
+		}
+		//check our args
+		flag.Parse()
+	} else { //if no args we'll run in stopwatch mode by default
+		stopwatch = true
+	}
 
 	if help { //print usage and exit
 		flag.Usage()
@@ -82,19 +90,28 @@ func main() {
 
 	printBanner() //banner sits over clock
 
-	if direction { //counting up not down
+	if stopwatch { // if stopwatch mode run until told to stop
 		cT = 0.0
-		for cT < timeToCount {
+		for true {
 			printTime(cT)
 			time.Sleep(incrementT)
 			cT += incrementF
 		}
-	} else { //else counting down
-		cT = timeToCount
-		for cT > 0.0 {
-			printTime(cT)
-			time.Sleep(incrementT)
-			cT -= incrementF
+	} else {
+		if direction { //counting up not down
+			cT = 0.0
+			for cT < timeToCount {
+				printTime(cT)
+				time.Sleep(incrementT)
+				cT += incrementF
+			}
+		} else { //else counting down
+			cT = timeToCount
+			for cT > 0.0 {
+				printTime(cT)
+				time.Sleep(incrementT)
+				cT -= incrementF
+			}
 		}
 	}
 

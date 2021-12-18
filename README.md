@@ -12,6 +12,7 @@ timer <time in seconds>
 - `-s` Time in seconds
 - `-m` Time is minutes
 - `-hr` Time in hours
+- `-S` Stopwatch mode (the default if no args are given)
 
 The times given will be summed together if more than one is specified.
 But the time parameters will be ignored if a positional is given.
