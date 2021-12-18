@@ -8,24 +8,28 @@ import (
 	"time"
 )
 
-func printTime(currentTime float64) {
+func printTime(currentTime float64, msg bool) {
 	//this is pretty gross... I should clean this up later
 	hours := int(currentTime / (60 * 60))
 	minutes := int(currentTime) % (60 * 60) / 60
 	seconds := float64(int(currentTime)%60) + (currentTime - float64(int(currentTime)))
 
-	fmt.Printf("\t|Time Passed: %2d : %2d : %5.2f|\n\r", hours, minutes, seconds)
-	fmt.Printf("\t|____________________________|\r")
+	if msg {
+		fmt.Printf("\t|Time Passed: %2d : %2d : %5.2f   |\n\r", hours, minutes, seconds)
+	} else {
+		fmt.Printf("\t|Time Remaining: %2d : %2d : %5.2f|\n\r", hours, minutes, seconds)
+	}
+	fmt.Printf("\t|_______________________________|\r")
 	print("\033[A\r")
 
 }
 
 func printBanner() {
-	fmt.Printf("\n\t___________HH/MM/SS___________\n")
+	fmt.Printf("\n\t_____________HH/MM/SS____________\n")
 }
 
-func printGoodbye() {
-	printTime(0)
+func printGoodbye(cT float64, msg bool) {
+	printTime(cT, msg)
 	print("\033[2B\r")
 	fmt.Printf("\n\tTimer Complete!\n\n")
 }
@@ -87,28 +91,32 @@ func main() {
 	var incrementF float64              //increment to count by
 	incrementT := 1 * time.Second / 100 //increment to sleep by
 	incrementF = 1.0 / 100
+	var msg bool
 
 	printBanner() //banner sits over clock
 
 	if stopwatch { // if stopwatch mode run until told to stop
 		cT = 0.0
+		msg = true
 		for true {
-			printTime(cT)
+			printTime(cT, msg)
 			time.Sleep(incrementT)
 			cT += incrementF
 		}
 	} else {
 		if direction { //counting up not down
 			cT = 0.0
+			msg = true
 			for cT < timeToCount {
-				printTime(cT)
+				printTime(cT, msg)
 				time.Sleep(incrementT)
 				cT += incrementF
 			}
 		} else { //else counting down
 			cT = timeToCount
+			msg = false
 			for cT > 0.0 {
-				printTime(cT)
+				printTime(cT, msg)
 				time.Sleep(incrementT)
 				cT -= incrementF
 			}
@@ -116,6 +124,6 @@ func main() {
 	}
 
 	//print goodbye message
-	printGoodbye()
+	printGoodbye(cT, msg)
 	return
 }
